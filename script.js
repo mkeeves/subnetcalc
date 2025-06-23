@@ -47,7 +47,6 @@ function calculateVLSM() {
   const [baseIP, baseCIDR] = baseInput.split('/');
   const baseNum = ipToNum(baseIP);
   const baseMaskBits = parseInt(baseCIDR, 10);
-  const baseMask = 0xFFFFFFFF << (32 - baseMaskBits) >>> 0;
   let currentIP = baseNum;
 
   if (!baseIP || isNaN(baseMaskBits) || baseMaskBits < 0 || baseMaskBits > 32) {
@@ -80,3 +79,16 @@ function calculateVLSM() {
 
   document.getElementById('vlsmOutput').innerHTML = result;
 }
+
+// Dark mode toggle
+document.addEventListener('DOMContentLoaded', () => {
+  const toggleButton = document.getElementById('toggleTheme');
+  toggleButton.addEventListener('click', () => {
+    document.body.classList.toggle('dark');
+  });
+});
+
+
+// TODO: Add IPv6 support
+// For full IPv6 support, you'd parse 128-bit addresses, handle CIDR ranges,
+// and display compressed/full address forms.

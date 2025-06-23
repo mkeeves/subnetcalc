@@ -3,21 +3,31 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Subnet Calculator</title>
+  <title>Modern Subnet Calculator</title>
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-  <h1>Subnet Calculator</h1>
-  <input type="text" id="ipInput" placeholder="Enter IP (e.g., 192.168.1.1/24)" />
-  <button onclick="calculate()">Calculate</button>
-  <div id="output"></div>
+  <div class="container">
+    <header>
+      <h1>Subnet Calculator</h1>
+      <button id="toggleTheme">Toggle Dark Mode</button>
+    </header>
 
-  <h2>VLSM Calculator</h2>
-  <input type="text" id="vlsmBase" placeholder="Enter base network (e.g., 192.168.0.0/24)" />
-  <textarea id="vlsmSizes" placeholder="Enter required host counts, one per line"></textarea>
-  <button onclick="calculateVLSM()">Calculate VLSM</button>
-  <div id="vlsmOutput"></div>
+    <section class="card">
+      <h2>Subnet Calculation</h2>
+      <input type="text" id="ipInput" placeholder="IP Address/CIDR (e.g., 192.168.1.1/24)" />
+      <button onclick="calculate()">Calculate</button>
+      <div id="output"></div>
+    </section>
 
+    <section class="card">
+      <h2>VLSM Calculator</h2>
+      <input type="text" id="vlsmBase" placeholder="Base Network (e.g., 192.168.0.0/24)" />
+      <textarea id="vlsmSizes" placeholder="Host requirements (e.g., 50\n20\n10)"></textarea>
+      <button onclick="calculateVLSM()">Calculate VLSM</button>
+      <div id="vlsmOutput"></div>
+    </section>
+  </div>
   <script src="script.js"></script>
 </body>
 </html>
