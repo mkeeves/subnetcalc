@@ -1,0 +1,22 @@
+body {
+  font-family: sans-serif;
+  margin: 2rem;
+  background: #f9f9f9;
+}
+input, textarea {
+  padding: 0.5rem;
+  width: 300px;
+  margin-right: 1rem;
+  margin-top: 0.5rem;
+  display: block;
+}
+button {
+  padding: 0.5rem 1rem;
+  margin-top: 1rem;
+}
+#output, #vlsmOutput {
+  margin-top: 1rem;
+  background: #eee;
+  padding: 1rem;
+  border-radius: 5px;
+}
