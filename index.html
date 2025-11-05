@@ -9,32 +9,150 @@
 <body>
   <div class="container">
     <div class="calculator-window">
-      <!-- Header -->
       <div class="window-header">
         <h1>Advanced IP Address Calculator</h1>
       </div>
 
-      <!-- Input Section -->
-      <div class="input-panel">
-        <div class="input-row">
-          <div class="input-field">
-            <label>IP Address:</label>
-            <input type="text" id="ipAddress" />
+      <div class="content-area">
+        <!-- IP Address Input (4 octets) -->
+        <div class="input-section">
+          <label class="section-label">IP Address:</label>
+          <div class="ip-octets">
+            <input type="text" class="octet-input" id="octet1" maxlength="3" size="3" />
+            <span class="octet-separator">.</span>
+            <input type="text" class="octet-input" id="octet2" maxlength="3" size="3" />
+            <span class="octet-separator">.</span>
+            <input type="text" class="octet-input" id="octet3" maxlength="3" size="3" />
+            <span class="octet-separator">.</span>
+            <input type="text" class="octet-input" id="octet4" maxlength="3" size="3" />
           </div>
-          <div class="input-field">
-            <label>Subnet Mask:</label>
-            <input type="text" id="subnetMask" />
-          </div>
-          <button id="calculateBtn" onclick="calculate()">Calculate</button>
         </div>
-      </div>
 
-      <!-- Main Content Area -->
-      <div class="main-content">
-        <!-- Left Panel: Bit Map -->
-        <div class="left-panel">
-          <div class="panel-title">Bit Map</div>
-          <div class="bitmap-wrapper">
+        <!-- Network Type and Controls -->
+        <div class="controls-section">
+          <div class="control-group">
+            <label>Network Type:</label>
+            <select id="networkType">
+              <option value="A">Class A</option>
+              <option value="B">Class B</option>
+              <option value="C">Class C</option>
+            </select>
+            <span class="network-range" id="networkRange">1.0.0.0 - 126.255.255.255</span>
+          </div>
+        </div>
+
+        <!-- Subnets Section -->
+        <div class="section">
+          <div class="section-header">Subnets</div>
+          <div class="fields-section">
+            <div class="field-row">
+              <div class="field-group">
+                <label>--Binary:</label>
+                <input type="text" id="binary" size="35" readonly />
+              </div>
+            </div>
+            
+            <div class="field-row">
+              <div class="field-group">
+                <label>--Mask:</label>
+                <select id="mask"></select>
+              </div>
+              <div class="field-group">
+                <label>--Hosts:</label>
+                <input type="text" id="hosts" size="15" readonly />
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field-group">
+                <label>Subnet ID:</label>
+                <input type="text" id="subnetID" size="15" readonly />
+              </div>
+              <div class="field-group">
+                <label>Broadcast Address:</label>
+                <input type="text" id="broadcast" size="15" readonly />
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field-group">
+                <label>Multicast:</label>
+                <input type="text" id="multicast" value="N/A" size="15" readonly />
+              </div>
+              <div class="field-group checkbox-group">
+                <label>
+                  <input type="checkbox" id="allowOneSubnetBit" />
+                  Allow 1 subnet bit
+                </label>
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field-group">
+                <label>Subnet bits:</label>
+                <select id="subnetBits"></select>
+              </div>
+              <div class="field-group">
+                <label>Mask bits:</label>
+                <select id="maskBits"></select>
+              </div>
+              <div class="field-group">
+                <label>Max subnets:</label>
+                <select id="maxSubnets"></select>
+              </div>
+              <div class="field-group">
+                <label>Max hosts:</label>
+                <select id="maxHosts"></select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Supernets Section -->
+        <div class="section">
+          <div class="section-header">Supernets</div>
+          <div class="fields-section">
+            <div class="field-row">
+              <div class="field-group">
+                <label>--Mask:</label>
+                <select id="supernetMask"></select>
+              </div>
+              <div class="field-group">
+                <label>--Mask bits:</label>
+                <select id="supernetMaskBits"></select>
+              </div>
+              <div class="field-group">
+                <label>--Max supernets:</label>
+                <select id="maxSupernets"></select>
+              </div>
+              <div class="field-group">
+                <label>--Max addresses:</label>
+                <select id="maxAddresses"></select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Route and Address Range -->
+        <div class="section">
+          <div class="fields-section">
+            <div class="field-row">
+              <div class="field-group">
+                <label>Route:</label>
+                <input type="text" id="route" size="20" readonly />
+              </div>
+              <div class="field-group">
+                <label>Address Range:</label>
+                <input type="text" id="addressRange" size="30" readonly />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bit Map Visualization -->
+        <div class="bitmap-section">
+          <div class="section-label">Bit Map</div>
+          <div class="bitmap-container">
             <div id="bitmap" class="bitmap-grid"></div>
             <div class="bitmap-legend">
               <div class="legend-item">
@@ -50,78 +168,6 @@
                 <span>Host</span>
               </div>
             </div>
-          </div>
-        </div>
-
-        <!-- Right Panel: Results -->
-        <div class="right-panel">
-          <div class="panel-title">Results</div>
-          <div class="results-container">
-            <table class="results-table">
-              <tr>
-                <td class="label">IP Address:</td>
-                <td class="value" id="resultIP">-</td>
-              </tr>
-              <tr>
-                <td class="label">Subnet Mask:</td>
-                <td class="value" id="resultMask">-</td>
-              </tr>
-              <tr>
-                <td class="label">Network Address:</td>
-                <td class="value" id="resultNetwork">-</td>
-              </tr>
-              <tr>
-                <td class="label">Broadcast Address:</td>
-                <td class="value" id="resultBroadcast">-</td>
-              </tr>
-              <tr>
-                <td class="label">First Host:</td>
-                <td class="value" id="resultFirstHost">-</td>
-              </tr>
-              <tr>
-                <td class="label">Last Host:</td>
-                <td class="value" id="resultLastHost">-</td>
-              </tr>
-              <tr>
-                <td class="label">Number of Hosts:</td>
-                <td class="value" id="resultHostCount">-</td>
-              </tr>
-              <tr>
-                <td class="label">Wildcard Mask:</td>
-                <td class="value" id="resultWildcard">-</td>
-              </tr>
-              <tr>
-                <td class="label">Network Class:</td>
-                <td class="value" id="resultClass">-</td>
-              </tr>
-              <tr>
-                <td class="label">CIDR Notation:</td>
-                <td class="value" id="resultCIDR">-</td>
-              </tr>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- Binary Representation Section -->
-      <div class="binary-panel">
-        <div class="panel-title">Binary Representation</div>
-        <div class="binary-container">
-          <div class="binary-item">
-            <span class="binary-label">IP Address:</span>
-            <code id="binaryIP">-</code>
-          </div>
-          <div class="binary-item">
-            <span class="binary-label">Subnet Mask:</span>
-            <code id="binaryMask">-</code>
-          </div>
-          <div class="binary-item">
-            <span class="binary-label">Network Address:</span>
-            <code id="binaryNetwork">-</code>
-          </div>
-          <div class="binary-item">
-            <span class="binary-label">Broadcast Address:</span>
-            <code id="binaryBroadcast">-</code>
           </div>
         </div>
       </div>
