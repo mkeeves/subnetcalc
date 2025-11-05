@@ -8,71 +8,124 @@
 </head>
 <body>
   <div class="container">
-    <header>
-      <h1>Advanced IP Address Calculator</h1>
-      <button id="toggleTheme">Toggle Dark Mode</button>
-    </header>
+    <div class="calculator-window">
+      <!-- Header -->
+      <div class="window-header">
+        <h1>Advanced IP Address Calculator</h1>
+      </div>
 
-    <!-- Tabs Navigation -->
-    <div class="tabs">
-      <button class="tab-btn active" data-tab="subnet">Subnet Calculator</button>
-      <button class="tab-btn" data-tab="vlsm">VLSM Calculator</button>
-      <button class="tab-btn" data-tab="split">Subnet Splitting</button>
-      <button class="tab-btn" data-tab="supernet">Supernetting</button>
-      <button class="tab-btn" data-tab="converter">IP Converter</button>
+      <!-- Input Section -->
+      <div class="input-panel">
+        <div class="input-row">
+          <div class="input-field">
+            <label>IP Address:</label>
+            <input type="text" id="ipAddress" />
+          </div>
+          <div class="input-field">
+            <label>Subnet Mask:</label>
+            <input type="text" id="subnetMask" />
+          </div>
+          <button id="calculateBtn" onclick="calculate()">Calculate</button>
+        </div>
+      </div>
+
+      <!-- Main Content Area -->
+      <div class="main-content">
+        <!-- Left Panel: Bit Map -->
+        <div class="left-panel">
+          <div class="panel-title">Bit Map</div>
+          <div class="bitmap-wrapper">
+            <div id="bitmap" class="bitmap-grid"></div>
+            <div class="bitmap-legend">
+              <div class="legend-item">
+                <span class="legend-color network"></span>
+                <span>Network</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-color subnet"></span>
+                <span>Subnet</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-color host"></span>
+                <span>Host</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Panel: Results -->
+        <div class="right-panel">
+          <div class="panel-title">Results</div>
+          <div class="results-container">
+            <table class="results-table">
+              <tr>
+                <td class="label">IP Address:</td>
+                <td class="value" id="resultIP">-</td>
+              </tr>
+              <tr>
+                <td class="label">Subnet Mask:</td>
+                <td class="value" id="resultMask">-</td>
+              </tr>
+              <tr>
+                <td class="label">Network Address:</td>
+                <td class="value" id="resultNetwork">-</td>
+              </tr>
+              <tr>
+                <td class="label">Broadcast Address:</td>
+                <td class="value" id="resultBroadcast">-</td>
+              </tr>
+              <tr>
+                <td class="label">First Host:</td>
+                <td class="value" id="resultFirstHost">-</td>
+              </tr>
+              <tr>
+                <td class="label">Last Host:</td>
+                <td class="value" id="resultLastHost">-</td>
+              </tr>
+              <tr>
+                <td class="label">Number of Hosts:</td>
+                <td class="value" id="resultHostCount">-</td>
+              </tr>
+              <tr>
+                <td class="label">Wildcard Mask:</td>
+                <td class="value" id="resultWildcard">-</td>
+              </tr>
+              <tr>
+                <td class="label">Network Class:</td>
+                <td class="value" id="resultClass">-</td>
+              </tr>
+              <tr>
+                <td class="label">CIDR Notation:</td>
+                <td class="value" id="resultCIDR">-</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Binary Representation Section -->
+      <div class="binary-panel">
+        <div class="panel-title">Binary Representation</div>
+        <div class="binary-container">
+          <div class="binary-item">
+            <span class="binary-label">IP Address:</span>
+            <code id="binaryIP">-</code>
+          </div>
+          <div class="binary-item">
+            <span class="binary-label">Subnet Mask:</span>
+            <code id="binaryMask">-</code>
+          </div>
+          <div class="binary-item">
+            <span class="binary-label">Network Address:</span>
+            <code id="binaryNetwork">-</code>
+          </div>
+          <div class="binary-item">
+            <span class="binary-label">Broadcast Address:</span>
+            <code id="binaryBroadcast">-</code>
+          </div>
+        </div>
+      </div>
     </div>
-
-    <!-- Subnet Calculator Tab -->
-    <section class="tab-content active" id="subnet-tab">
-      <div class="card">
-        <h2>Subnet Calculator</h2>
-        <input type="text" id="ipInput" placeholder="IP Address/CIDR (e.g., 192.168.1.1/24)" />
-        <button onclick="calculate()">Calculate</button>
-        <div id="output" class="output"></div>
-      </div>
-    </section>
-
-    <!-- VLSM Calculator Tab -->
-    <section class="tab-content" id="vlsm-tab">
-      <div class="card">
-        <h2>VLSM Calculator</h2>
-        <input type="text" id="vlsmBase" placeholder="Base Network (e.g., 192.168.0.0/24)" />
-        <textarea id="vlsmSizes" placeholder="Host requirements (one per line, e.g.,&#10;50&#10;20&#10;10)"></textarea>
-        <button onclick="calculateVLSM()">Calculate VLSM</button>
-        <div id="vlsmOutput" class="output"></div>
-      </div>
-    </section>
-
-    <!-- Subnet Splitting Tab -->
-    <section class="tab-content" id="split-tab">
-      <div class="card">
-        <h2>Subnet Splitting</h2>
-        <input type="text" id="splitNetwork" placeholder="Network (e.g., 192.168.1.0/24)" />
-        <input type="number" id="splitCount" placeholder="Number of subnets (e.g., 4)" min="2" />
-        <button onclick="calculateSplit()">Calculate Subnets</button>
-        <div id="splitOutput" class="output"></div>
-      </div>
-    </section>
-
-    <!-- Supernetting Tab -->
-    <section class="tab-content" id="supernet-tab">
-      <div class="card">
-        <h2>Supernetting (Route Aggregation)</h2>
-        <textarea id="supernetNetworks" placeholder="Enter networks (one per line, e.g.,&#10;192.168.1.0/24&#10;192.168.2.0/24&#10;192.168.3.0/24)"></textarea>
-        <button onclick="calculateSupernet()">Calculate Supernet</button>
-        <div id="supernetOutput" class="output"></div>
-      </div>
-    </section>
-
-    <!-- IP Converter Tab -->
-    <section class="tab-content" id="converter-tab">
-      <div class="card">
-        <h2>IP Address Converter</h2>
-        <input type="text" id="converterInput" placeholder="IP Address (e.g., 192.168.1.1)" />
-        <button onclick="convertIP()">Convert</button>
-        <div id="converterOutput" class="output"></div>
-      </div>
-    </section>
   </div>
   <script src="script.js"></script>
 </body>

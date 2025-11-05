@@ -13,12 +13,6 @@ function ipToBinary(ip) {
   }).join('.');
 }
 
-function ipToHex(ip) {
-  return ip.split('.').map(octet => {
-    return parseInt(octet, 10).toString(16).padStart(2, '0').toUpperCase();
-  }).join('.');
-}
-
 function getNetworkClass(ip) {
   const firstOctet = parseInt(ip.split('.')[0], 10);
   if (firstOctet >= 1 && firstOctet <= 126) return 'A';
@@ -35,499 +29,133 @@ function validateIP(ip) {
   return ipParts.every(p => p >= 0 && p <= 255);
 }
 
-function copyToClipboard(text) {
-  navigator.clipboard.writeText(text).then(() => {
-    // Show feedback
-    const notification = document.createElement('div');
-    notification.className = 'notification';
-    notification.textContent = 'Copied!';
-    document.body.appendChild(notification);
-    setTimeout(() => notification.remove(), 2000);
-  });
-}
-
-// Enhanced Subnet Calculator
-function calculate() {
-  const input = document.getElementById('ipInput').value.trim();
-  const [ip, cidr] = input.split('/');
-  const maskBits = parseInt(cidr, 10);
-
-  if (!ip || isNaN(maskBits) || maskBits < 0 || maskBits > 32) {
-    document.getElementById('output').innerHTML = '<p class="error">Invalid input. Please use format: IP/CIDR (e.g., 192.168.1.1/24)</p>';
-    return;
+function parseSubnetMask(mask) {
+  // Check if it's CIDR notation
+  if (mask.startsWith('/')) {
+    const cidr = parseInt(mask.substring(1), 10);
+    if (isNaN(cidr) || cidr < 0 || cidr > 32) return null;
+    return { mask: 0xFFFFFFFF << (32 - cidr) >>> 0, cidr };
   }
-
-  if (!validateIP(ip)) {
-    document.getElementById('output').innerHTML = '<p class="error">Invalid IP address</p>';
-    return;
-  }
-
-  const ipNum = ipToNum(ip);
-  const mask = 0xFFFFFFFF << (32 - maskBits) >>> 0;
-  const wildcard = (~mask >>> 0) & 0xFFFFFFFF;
-  const network = ipNum & mask;
-  const broadcast = network | (~mask >>> 0);
-  const firstHost = (maskBits < 31) ? network + 1 : network;
-  const lastHost = (maskBits < 31) ? broadcast - 1 : broadcast;
-  const hostCount = (maskBits < 31) ? (lastHost - firstHost + 1) : ((maskBits === 31) ? 2 : 1);
-  const networkClass = getNetworkClass(ip);
-
-  const output = document.getElementById('output');
-  output.innerHTML = `
-    <div class="result-section">
-      <h3>Network Information</h3>
-      <div class="result-grid">
-        <div class="result-item">
-          <label>IP Address:</label>
-          <div class="value-with-copy" onclick="copyToClipboard('${ip}')">
-            <span>${ip}</span>
-            <span class="copy-icon">📋</span>
-          </div>
-        </div>
-        <div class="result-item">
-          <label>Network Class:</label>
-          <span>${networkClass}</span>
-        </div>
-        <div class="result-item">
-          <label>Network Address:</label>
-          <div class="value-with-copy" onclick="copyToClipboard('${numToIP(network)}')">
-            <span>${numToIP(network)}</span>
-            <span class="copy-icon">📋</span>
-          </div>
-        </div>
-        <div class="result-item">
-          <label>Subnet Mask:</label>
-          <div class="value-with-copy" onclick="copyToClipboard('${numToIP(mask)}')">
-            <span>${numToIP(mask)} /${maskBits}</span>
-            <span class="copy-icon">📋</span>
-          </div>
-        </div>
-        <div class="result-item">
-          <label>Wildcard Mask:</label>
-          <div class="value-with-copy" onclick="copyToClipboard('${numToIP(wildcard)}')">
-            <span>${numToIP(wildcard)}</span>
-            <span class="copy-icon">📋</span>
-          </div>
-        </div>
-        <div class="result-item">
-          <label>Broadcast Address:</label>
-          <div class="value-with-copy" onclick="copyToClipboard('${numToIP(broadcast)}')">
-            <span>${numToIP(broadcast)}</span>
-            <span class="copy-icon">📋</span>
-          </div>
-        </div>
-        <div class="result-item">
-          <label>First Host:</label>
-          <div class="value-with-copy" onclick="copyToClipboard('${numToIP(firstHost)}')">
-            <span>${numToIP(firstHost)}</span>
-            <span class="copy-icon">📋</span>
-          </div>
-        </div>
-        <div class="result-item">
-          <label>Last Host:</label>
-          <div class="value-with-copy" onclick="copyToClipboard('${numToIP(lastHost)}')">
-            <span>${numToIP(lastHost)}</span>
-            <span class="copy-icon">📋</span>
-          </div>
-        </div>
-        <div class="result-item">
-          <label>Total Hosts:</label>
-          <span>${hostCount}</span>
-        </div>
-        <div class="result-item">
-          <label>Usable Hosts:</label>
-          <span>${Math.max(0, hostCount - (maskBits < 31 ? 2 : 0))}</span>
-        </div>
-      </div>
-    </div>
-    <div class="result-section">
-      <h3>Binary Representation</h3>
-      <div class="binary-display">
-        <div class="binary-row">
-          <label>IP Address:</label>
-          <code>${ipToBinary(ip)}</code>
-        </div>
-        <div class="binary-row">
-          <label>Subnet Mask:</label>
-          <code>${ipToBinary(numToIP(mask))}</code>
-        </div>
-        <div class="binary-row">
-          <label>Network:</label>
-          <code>${ipToBinary(numToIP(network))}</code>
-        </div>
-        <div class="binary-row">
-          <label>Broadcast:</label>
-          <code>${ipToBinary(numToIP(broadcast))}</code>
-        </div>
-      </div>
-    </div>
-    <div class="result-section">
-      <h3>Hexadecimal Representation</h3>
-      <div class="binary-display">
-        <div class="binary-row">
-          <label>IP Address:</label>
-          <code>${ipToHex(ip)}</code>
-        </div>
-        <div class="binary-row">
-          <label>Subnet Mask:</label>
-          <code>${ipToHex(numToIP(mask))}</code>
-        </div>
-        <div class="binary-row">
-          <label>Network:</label>
-          <code>${ipToHex(numToIP(network))}</code>
-        </div>
-        <div class="binary-row">
-          <label>Broadcast:</label>
-          <code>${ipToHex(numToIP(broadcast))}</code>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-// VLSM Calculator
-function calculateVLSM() {
-  const baseInput = document.getElementById('vlsmBase').value.trim();
-  const hostLines = document.getElementById('vlsmSizes').value.trim()
-    .split('\n')
-    .map(h => parseInt(h.trim()))
-    .filter(n => !isNaN(n) && n > 0);
-
-  if (hostLines.length === 0) {
-    document.getElementById('vlsmOutput').innerHTML = '<p class="error">Please enter at least one host requirement</p>';
-    return;
-  }
-
-  const [baseIP, baseCIDR] = baseInput.split('/');
-  const baseMaskBits = parseInt(baseCIDR, 10);
-
-  if (!baseIP || isNaN(baseMaskBits) || baseMaskBits < 0 || baseMaskBits > 32 || !validateIP(baseIP)) {
-    document.getElementById('vlsmOutput').innerHTML = '<p class="error">Invalid base network</p>';
-    return;
-  }
-
-  const baseNum = ipToNum(baseIP);
-  const baseMask = 0xFFFFFFFF << (32 - baseMaskBits) >>> 0;
-  const baseNetwork = baseNum & baseMask;
-  let currentIP = baseNetwork;
-
-  let result = '<div class="vlsm-results">';
-  const sortedHosts = [...hostLines].sort((a, b) => b - a); // largest first
-
-  for (let i = 0; i < sortedHosts.length; i++) {
-    const hosts = sortedHosts[i];
-    const needed = hosts + 2; // network + broadcast
-    const bits = Math.max(0, 32 - Math.ceil(Math.log2(needed)));
-    const mask = 0xFFFFFFFF << (32 - bits) >>> 0;
-    const size = Math.pow(2, 32 - bits);
-    const network = currentIP;
-    const broadcast = network + size - 1;
-    const firstHost = size > 2 ? network + 1 : network;
-    const lastHost = size > 2 ? broadcast - 1 : broadcast;
-
-    // Check if we exceed the base network
-    if ((network & baseMask) !== baseNetwork) {
-      result += `<p class="error">Subnet ${i + 1} (${hosts} hosts) exceeds base network range!</p>`;
-      break;
-    }
-
-    result += `
-      <div class="vlsm-item">
-        <h4>Subnet ${i + 1}: ${hosts} hosts required</h4>
-        <div class="result-grid">
-          <div class="result-item">
-            <label>Network:</label>
-            <span>${numToIP(network)}/${bits}</span>
-          </div>
-          <div class="result-item">
-            <label>Subnet Mask:</label>
-            <span>${numToIP(mask)}</span>
-          </div>
-          <div class="result-item">
-            <label>Host Range:</label>
-            <span>${numToIP(firstHost)} – ${numToIP(lastHost)}</span>
-          </div>
-          <div class="result-item">
-            <label>Broadcast:</label>
-            <span>${numToIP(broadcast)}</span>
-          </div>
-          <div class="result-item">
-            <label>Total Hosts:</label>
-            <span>${size - 2}</span>
-          </div>
-        </div>
-      </div>
-    `;
-
-    currentIP += size;
-  }
-
-  result += '</div>';
-  document.getElementById('vlsmOutput').innerHTML = result;
-}
-
-// Subnet Splitting
-function calculateSplit() {
-  const networkInput = document.getElementById('splitNetwork').value.trim();
-  const splitCount = parseInt(document.getElementById('splitCount').value, 10);
-
-  if (!networkInput || isNaN(splitCount) || splitCount < 2) {
-    document.getElementById('splitOutput').innerHTML = '<p class="error">Please enter a valid network and number of subnets (minimum 2)</p>';
-    return;
-  }
-
-  const [ip, cidr] = networkInput.split('/');
-  const maskBits = parseInt(cidr, 10);
-
-  if (!ip || isNaN(maskBits) || maskBits < 0 || maskBits > 32 || !validateIP(ip)) {
-    document.getElementById('splitOutput').innerHTML = '<p class="error">Invalid network</p>';
-    return;
-  }
-
-  const requiredBits = Math.ceil(Math.log2(splitCount));
-  const newMaskBits = maskBits + requiredBits;
-
-  if (newMaskBits > 32) {
-    document.getElementById('splitOutput').innerHTML = '<p class="error">Cannot split into that many subnets. Maximum: ' + Math.pow(2, 32 - maskBits) + ' subnets</p>';
-    return;
-  }
-
-  const ipNum = ipToNum(ip);
-  const baseMask = 0xFFFFFFFF << (32 - maskBits) >>> 0;
-  const baseNetwork = ipNum & baseMask;
-  const subnetSize = Math.pow(2, 32 - newMaskBits);
-
-  let result = `<p><strong>Splitting ${networkInput} into ${splitCount} subnets:</strong></p><div class="vlsm-results">`;
   
-  for (let i = 0; i < splitCount; i++) {
-    const network = baseNetwork + (i * subnetSize);
-    const broadcast = network + subnetSize - 1;
-    const firstHost = network + 1;
-    const lastHost = broadcast - 1;
-
-    result += `
-      <div class="vlsm-item">
-        <h4>Subnet ${i + 1}</h4>
-        <div class="result-grid">
-          <div class="result-item">
-            <label>Network:</label>
-            <span>${numToIP(network)}/${newMaskBits}</span>
-          </div>
-          <div class="result-item">
-            <label>Host Range:</label>
-            <span>${numToIP(firstHost)} – ${numToIP(lastHost)}</span>
-          </div>
-          <div class="result-item">
-            <label>Broadcast:</label>
-            <span>${numToIP(broadcast)}</span>
-          </div>
-          <div class="result-item">
-            <label>Hosts:</label>
-            <span>${subnetSize - 2}</span>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  result += '</div>';
-  document.getElementById('splitOutput').innerHTML = result;
+  // Check if it's a valid subnet mask
+  if (!validateIP(mask)) return null;
+  
+  const maskNum = ipToNum(mask);
+  const cidr = countBits(maskNum);
+  
+  // Validate it's a proper subnet mask (all 1s followed by all 0s)
+  const expectedMask = 0xFFFFFFFF << (32 - cidr) >>> 0;
+  if (maskNum !== expectedMask) return null;
+  
+  return { mask: maskNum, cidr };
 }
 
-// Supernetting (Route Aggregation)
-function calculateSupernet() {
-  const networksInput = document.getElementById('supernetNetworks').value.trim();
-  const networks = networksInput.split('\n')
-    .map(line => line.trim())
-    .filter(line => line.length > 0);
+function countBits(num) {
+  let count = 0;
+  while (num > 0) {
+    count++;
+    num = num >>> 1;
+  }
+  return count;
+}
 
-  if (networks.length < 2) {
-    document.getElementById('supernetOutput').innerHTML = '<p class="error">Please enter at least 2 networks</p>';
+function calculate() {
+  const ipInput = document.getElementById('ipAddress').value.trim();
+  const maskInput = document.getElementById('subnetMask').value.trim();
+  
+  // Validate IP address
+  if (!validateIP(ipInput)) {
+    alert('Invalid IP Address');
     return;
   }
-
-  // Parse all networks
-  const parsedNetworks = [];
-  for (const net of networks) {
-    const [ip, cidr] = net.split('/');
-    const maskBits = parseInt(cidr, 10);
-    if (!ip || isNaN(maskBits) || maskBits < 0 || maskBits > 32 || !validateIP(ip)) {
-      document.getElementById('supernetOutput').innerHTML = '<p class="error">Invalid network: ' + net + '</p>';
-      return;
-    }
-    const ipNum = ipToNum(ip);
-    const mask = 0xFFFFFFFF << (32 - maskBits) >>> 0;
-    const network = ipNum & mask;
-    parsedNetworks.push({ ip, cidr: maskBits, network, mask, original: net });
+  
+  // Parse subnet mask
+  const maskData = parseSubnetMask(maskInput);
+  if (!maskData) {
+    alert('Invalid Subnet Mask. Use format like 255.255.255.0 or /24');
+    return;
   }
+  
+  const { mask: maskNum, cidr } = maskData;
+  const ipNum = ipToNum(ipInput);
+  const network = ipNum & maskNum;
+  const wildcard = (~maskNum >>> 0) & 0xFFFFFFFF;
+  const broadcast = network | (~maskNum >>> 0);
+  const firstHost = (cidr < 31) ? network + 1 : network;
+  const lastHost = (cidr < 31) ? broadcast - 1 : broadcast;
+  const hostCount = (cidr < 31) ? (broadcast - network - 1) : ((cidr === 31) ? 2 : 1);
+  const usableHosts = (cidr < 31) ? hostCount - 2 : hostCount;
+  
+  // Display results
+  document.getElementById('resultIP').textContent = ipInput;
+  document.getElementById('resultMask').textContent = `${numToIP(maskNum)} (/${cidr})`;
+  document.getElementById('resultNetwork').textContent = numToIP(network);
+  document.getElementById('resultBroadcast').textContent = numToIP(broadcast);
+  document.getElementById('resultFirstHost').textContent = numToIP(firstHost);
+  document.getElementById('resultLastHost').textContent = numToIP(lastHost);
+  document.getElementById('resultHostCount').textContent = `${hostCount} (${usableHosts} usable)`;
+  document.getElementById('resultWildcard').textContent = numToIP(wildcard);
+  document.getElementById('resultClass').textContent = getNetworkClass(ipInput);
+  document.getElementById('resultCIDR').textContent = `/${cidr}`;
+  
+  // Display binary representation
+  document.getElementById('binaryIP').textContent = ipToBinary(ipInput);
+  document.getElementById('binaryMask').textContent = ipToBinary(numToIP(maskNum));
+  document.getElementById('binaryNetwork').textContent = ipToBinary(numToIP(network));
+  document.getElementById('binaryBroadcast').textContent = ipToBinary(numToIP(broadcast));
+  
+  // Create bit map visualization
+  createBitmap(ipInput, maskNum, network, cidr);
+}
 
-  // Find common prefix
-  let commonPrefix = 32;
-  const firstNetwork = parsedNetworks[0].network;
-  const lastNetwork = parsedNetworks[parsedNetworks.length - 1].network;
-
-  // Find the longest common prefix
-  for (let i = 0; i < 32; i++) {
-    const mask = 0xFFFFFFFF << (32 - i) >>> 0;
-    const firstNet = firstNetwork & mask;
-    const lastNet = lastNetwork & mask;
-    if (firstNet === lastNet) {
-      commonPrefix = i;
+function createBitmap(ip, maskNum, network, cidr) {
+  const bitmapDiv = document.getElementById('bitmap');
+  bitmapDiv.innerHTML = '';
+  
+  // Determine network, subnet, and host bits based on class and mask
+  const firstOctet = parseInt(ip.split('.')[0], 10);
+  let networkBits = 0;
+  if (firstOctet >= 1 && firstOctet <= 126) networkBits = 8; // Class A
+  else if (firstOctet >= 128 && firstOctet <= 191) networkBits = 16; // Class B
+  else if (firstOctet >= 192 && firstOctet <= 223) networkBits = 24; // Class C
+  
+  const subnetBits = cidr - networkBits;
+  const hostBits = 32 - cidr;
+  
+  // Create 32 bits visualization
+  for (let bitIndex = 0; bitIndex < 32; bitIndex++) {
+    const bit = document.createElement('div');
+    bit.className = 'bit';
+    
+    // Determine bit type
+    if (bitIndex < networkBits) {
+      bit.className += ' network';
+      bit.title = 'Network Bit';
+    } else if (bitIndex < cidr) {
+      bit.className += ' subnet';
+      bit.title = 'Subnet Bit';
     } else {
-      break;
+      bit.className += ' host';
+      bit.title = 'Host Bit';
     }
+    
+    // Get the actual bit value from network address
+    const bitValue = (network >>> (31 - bitIndex)) & 1;
+    bit.textContent = bitValue;
+    
+    bitmapDiv.appendChild(bit);
   }
-
-  // Check if all networks fit in the common prefix
-  const supernetMask = 0xFFFFFFFF << (32 - commonPrefix) >>> 0;
-  const supernetNetwork = firstNetwork & supernetMask;
-
-  // Verify all networks are within the supernet
-  const allFit = parsedNetworks.every(net => {
-    return (net.network & supernetMask) === supernetNetwork;
-  });
-
-  if (!allFit) {
-    document.getElementById('supernetOutput').innerHTML = '<p class="error">These networks cannot be aggregated into a single supernet</p>';
-    return;
-  }
-
-  const broadcast = supernetNetwork | (~supernetMask >>> 0);
-
-  let result = `
-    <div class="result-section">
-      <h3>Supernet (Aggregated Route)</h3>
-      <div class="result-grid">
-        <div class="result-item">
-          <label>Supernet:</label>
-          <div class="value-with-copy" onclick="copyToClipboard('${numToIP(supernetNetwork)}/${commonPrefix}')">
-            <span>${numToIP(supernetNetwork)}/${commonPrefix}</span>
-            <span class="copy-icon">📋</span>
-          </div>
-        </div>
-        <div class="result-item">
-          <label>Subnet Mask:</label>
-          <span>${numToIP(supernetMask)}</span>
-        </div>
-        <div class="result-item">
-          <label>Range:</label>
-          <span>${numToIP(supernetNetwork)} – ${numToIP(broadcast)}</span>
-        </div>
-      </div>
-    </div>
-    <div class="result-section">
-      <h3>Input Networks</h3>
-      <ul class="network-list">
-        ${parsedNetworks.map(net => `<li>${net.original}</li>`).join('')}
-      </ul>
-    </div>
-  `;
-
-  document.getElementById('supernetOutput').innerHTML = result;
 }
 
-// IP Converter
-function convertIP() {
-  const ip = document.getElementById('converterInput').value.trim();
-
-  if (!validateIP(ip)) {
-    document.getElementById('converterOutput').innerHTML = '<p class="error">Invalid IP address</p>';
-    return;
-  }
-
-  const ipNum = ipToNum(ip);
-  const binary = ipToBinary(ip);
-  const hex = ipToHex(ip);
-  const networkClass = getNetworkClass(ip);
-  const decimal = ipNum;
-
-  const output = document.getElementById('converterOutput');
-  output.innerHTML = `
-    <div class="result-section">
-      <h3>IP Address Conversions</h3>
-      <div class="result-grid">
-        <div class="result-item">
-          <label>Decimal (Dotted):</label>
-          <div class="value-with-copy" onclick="copyToClipboard('${ip}')">
-            <span>${ip}</span>
-            <span class="copy-icon">📋</span>
-          </div>
-        </div>
-        <div class="result-item">
-          <label>Decimal (32-bit):</label>
-          <div class="value-with-copy" onclick="copyToClipboard('${decimal}')">
-            <span>${decimal}</span>
-            <span class="copy-icon">📋</span>
-          </div>
-        </div>
-        <div class="result-item">
-          <label>Binary:</label>
-          <div class="value-with-copy" onclick="copyToClipboard('${binary}')">
-            <span><code>${binary}</code></span>
-            <span class="copy-icon">📋</span>
-          </div>
-        </div>
-        <div class="result-item">
-          <label>Hexadecimal:</label>
-          <div class="value-with-copy" onclick="copyToClipboard('${hex}')">
-            <span><code>${hex}</code></span>
-            <span class="copy-icon">📋</span>
-          </div>
-        </div>
-        <div class="result-item">
-          <label>Network Class:</label>
-          <span>${networkClass}</span>
-        </div>
-      </div>
-    </div>
-    <div class="result-section">
-      <h3>Binary Breakdown</h3>
-      <div class="binary-display">
-        ${ip.split('.').map((octet, i) => `
-          <div class="binary-row">
-            <label>Octet ${i + 1} (${octet}):</label>
-            <code>${parseInt(octet, 10).toString(2).padStart(8, '0')}</code>
-          </div>
-        `).join('')}
-      </div>
-    </div>
-  `;
-}
-
-// Tab functionality
+// Allow Enter key to trigger calculation
 document.addEventListener('DOMContentLoaded', () => {
-  // Dark mode toggle
-  const toggleButton = document.getElementById('toggleTheme');
-  toggleButton.addEventListener('click', () => {
-    document.body.classList.toggle('dark');
-  });
-
-  // Tab switching
-  const tabButtons = document.querySelectorAll('.tab-btn');
-  const tabContents = document.querySelectorAll('.tab-content');
-
-  tabButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      const targetTab = button.getAttribute('data-tab');
-
-      // Remove active class from all tabs and contents
-      tabButtons.forEach(btn => btn.classList.remove('active'));
-      tabContents.forEach(content => content.classList.remove('active'));
-
-      // Add active class to clicked tab and corresponding content
-      button.classList.add('active');
-      document.getElementById(targetTab + '-tab').classList.add('active');
-    });
-  });
-
-  // Enter key support for inputs
-  document.getElementById('ipInput').addEventListener('keypress', (e) => {
+  document.getElementById('ipAddress').addEventListener('keypress', (e) => {
     if (e.key === 'Enter') calculate();
   });
-  document.getElementById('converterInput').addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') convertIP();
+  
+  document.getElementById('subnetMask').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') calculate();
   });
-  document.getElementById('splitNetwork').addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') calculateSplit();
-  });
+  
+  document.getElementById('calculateBtn').addEventListener('click', calculate);
 });
