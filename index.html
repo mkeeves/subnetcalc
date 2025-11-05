@@ -3,29 +3,75 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Modern Subnet Calculator</title>
+  <title>Advanced IP Address Calculator</title>
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>Subnet Calculator</h1>
+      <h1>Advanced IP Address Calculator</h1>
       <button id="toggleTheme">Toggle Dark Mode</button>
     </header>
 
-    <section class="card">
-      <h2>Subnet Calculation</h2>
-      <input type="text" id="ipInput" placeholder="IP Address/CIDR (e.g., 192.168.1.1/24)" />
-      <button onclick="calculate()">Calculate</button>
-      <div id="output"></div>
+    <!-- Tabs Navigation -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="subnet">Subnet Calculator</button>
+      <button class="tab-btn" data-tab="vlsm">VLSM Calculator</button>
+      <button class="tab-btn" data-tab="split">Subnet Splitting</button>
+      <button class="tab-btn" data-tab="supernet">Supernetting</button>
+      <button class="tab-btn" data-tab="converter">IP Converter</button>
+    </div>
+
+    <!-- Subnet Calculator Tab -->
+    <section class="tab-content active" id="subnet-tab">
+      <div class="card">
+        <h2>Subnet Calculator</h2>
+        <input type="text" id="ipInput" placeholder="IP Address/CIDR (e.g., 192.168.1.1/24)" />
+        <button onclick="calculate()">Calculate</button>
+        <div id="output" class="output"></div>
+      </div>
     </section>
 
-    <section class="card">
-      <h2>VLSM Calculator</h2>
-      <input type="text" id="vlsmBase" placeholder="Base Network (e.g., 192.168.0.0/24)" />
-      <textarea id="vlsmSizes" placeholder="Host requirements (e.g., 50\n20\n10)"></textarea>
-      <button onclick="calculateVLSM()">Calculate VLSM</button>
-      <div id="vlsmOutput"></div>
+    <!-- VLSM Calculator Tab -->
+    <section class="tab-content" id="vlsm-tab">
+      <div class="card">
+        <h2>VLSM Calculator</h2>
+        <input type="text" id="vlsmBase" placeholder="Base Network (e.g., 192.168.0.0/24)" />
+        <textarea id="vlsmSizes" placeholder="Host requirements (one per line, e.g.,&#10;50&#10;20&#10;10)"></textarea>
+        <button onclick="calculateVLSM()">Calculate VLSM</button>
+        <div id="vlsmOutput" class="output"></div>
+      </div>
+    </section>
+
+    <!-- Subnet Splitting Tab -->
+    <section class="tab-content" id="split-tab">
+      <div class="card">
+        <h2>Subnet Splitting</h2>
+        <input type="text" id="splitNetwork" placeholder="Network (e.g., 192.168.1.0/24)" />
+        <input type="number" id="splitCount" placeholder="Number of subnets (e.g., 4)" min="2" />
+        <button onclick="calculateSplit()">Calculate Subnets</button>
+        <div id="splitOutput" class="output"></div>
+      </div>
+    </section>
+
+    <!-- Supernetting Tab -->
+    <section class="tab-content" id="supernet-tab">
+      <div class="card">
+        <h2>Supernetting (Route Aggregation)</h2>
+        <textarea id="supernetNetworks" placeholder="Enter networks (one per line, e.g.,&#10;192.168.1.0/24&#10;192.168.2.0/24&#10;192.168.3.0/24)"></textarea>
+        <button onclick="calculateSupernet()">Calculate Supernet</button>
+        <div id="supernetOutput" class="output"></div>
+      </div>
+    </section>
+
+    <!-- IP Converter Tab -->
+    <section class="tab-content" id="converter-tab">
+      <div class="card">
+        <h2>IP Address Converter</h2>
+        <input type="text" id="converterInput" placeholder="IP Address (e.g., 192.168.1.1)" />
+        <button onclick="convertIP()">Convert</button>
+        <div id="converterOutput" class="output"></div>
+      </div>
     </section>
   </div>
   <script src="script.js"></script>
